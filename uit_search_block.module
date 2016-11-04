@@ -1,0 +1,79 @@
+<?php
+/**
+ * @file
+ * Provide Search Box
+ */
+
+/**
+ * Implements hook_block_info().
+ */
+function uit_search_block_block_info() {
+
+  /**
+   * Default search block.
+   */
+  $blocks['uit_search_block'] = array(
+    'info' => t('Search Block'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function uit_search_block_block_view($delta = '') {
+  $block = array();
+
+  $block['subject'] = t('Search this site');
+  $block['content'] = drupal_get_form('uit_search_block_form');
+  return $block;
+}
+
+/**
+ * Single fulltext search patch through block for the search sub modules.
+ * @param  [type] $form       [description]
+ * @param  [type] $form_state [description]
+ * @return [type]             [description]
+ */
+function uit_search_block_form($form, &$form_state) {
+
+  $form["#action"] = url("search");
+
+  $form['text'] = array(
+    '#type' => 'textfield',
+    '#default_value' => isset($_REQUEST['text']) ? check_plain($_REQUEST["text"]) : "",
+    '#attributes' => array(
+      'placeholder' => t('Search this site...'),
+      'class' => array('input-medium search-query'),
+    ),
+  );
+
+  $form['search'] = array(
+    '#type' => 'image_button',
+    '#src' => drupal_get_path('theme', 'open_framework') . '/images/searchbutton.png',
+    '#attributes' => array(
+      'class' => array('btn-search'),
+      'alt' => t("Search"),
+    ),
+    '#value' => t('Search'),
+  );
+
+  return $form;
+}
+
+/**
+ * Full text submit redirect.
+ * @param  [type] $form       [description]
+ * @param  [type] $form_state [description]
+ * @return [type]             [description]
+ */
+function uit_search_block_form_submit($form, $form_state) {
+  $values = $form_state['values'];
+
+  if (isset($values['text'])) {
+    drupal_goto('search', array('query' => array("text" => check_plain($values['text']))));
+  }
+
+}
